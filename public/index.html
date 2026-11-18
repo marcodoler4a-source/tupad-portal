@@ -1,1 +1,27 @@
 
+<form id="loginForm" onsubmit="handleLogin(event)">
+    <div class="form-group">
+        <input
+            type="text"
+            id="username"
+            required
+            placeholder="Enter Username"
+            autocomplete="username"
+            autofocus
+        >
+    </div>
+
+    <div class="form-group">
+        <input
+            type="password"
+            id="password"
+            required
+            placeholder="Enter Password"
+            autocomplete="current-password"
+        >
+    </div>
+
+    <button type="submit" id="submitBtn" class="btn-submit">
+        Sign In
+    </button>
+</form>
