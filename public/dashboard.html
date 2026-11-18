@@ -1,1 +1,89 @@
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TUPAD Portal Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,.08);
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>DOLE IV-A TUPAD PORTAL</h1>
+    <h2>Welcome to the Dashboard</h2>
+
+    <p id="welcomeMessage">Verifying session...</p>
+
+    <button onclick="logout()">Sign Out</button>
+</div>
+
+<script>
+async function verifySession() {
+    const token = sessionStorage.getItem("tupad_token");
+
+    if (!token) {
+        window.location.replace("/");
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/me", {
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Invalid session");
+        }
+
+        const result = await response.json();
+
+        document.getElementById("welcomeMessage").textContent =
+            "Welcome, " + result.user.username + "!";
+
+    } catch (error) {
+        sessionStorage.clear();
+        window.location.replace("/");
+    }
+}
+
+function logout() {
+    sessionStorage.clear();
+    window.location.replace("/");
+}
+
+verifySession();
+</script>
+
+</body>
+</html>
