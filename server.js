@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -13,8 +14,20 @@ const JWT_SECRET = process.env.JWT_SECRET;
 app.disable("x-powered-by");
 app.use(express.json({ limit: "10kb" }));
 
-// Serve the login page explicitly. Do not expose the project root as a static folder:
-// doing so could accidentally publish .env or server-side source files.
+// Serve only explicitly permitted root-level assets. Never expose the
+// repository root through express.static (it may contain secrets/source).
+for (const imageName of ["dole.png", "tupad.png"]) {
+  app.get(`/${imageName}`, (_req, res) => {
+    const imagePath = path.join(__dirname, imageName);
+    res.sendFile(imagePath, (err) => {
+      if (err && !res.headersSent) {
+        res.status(err.statusCode || 404).send("Image not found.");
+      }
+    });
+  });
+}
+
+// Serve the login page explicitly.
 app.get("/", (_req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
@@ -142,4 +155,7 @@ app.use((req, res) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`TUPAD Portal running at http://localhost:${PORT}`);
   console.log("Health check: http://localhost:" + PORT + "/api/health");
+  for (const imageName of ["dole.png", "tupad.png"]) {
+    console.log(`${imageName}: ${fs.existsSync(path.join(__dirname, imageName)) ? "found" : "not found in project root"}`);
+  }
 });
